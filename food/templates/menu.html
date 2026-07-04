@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Меню</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .welcome {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0ff;
+            border-radius: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .price {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ff6b6b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .logout:hover {
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Меню</h1>
+        
+        <div class="welcome">{{ welcome }}</div>
+        
+        <ul>
+            {% for product in products %}
+            <li>
+                <span>{{ product[1] }}</span>
+                <span class="price">{{ product[2] }} руб.</span>
+            </li>
+            {% endfor %}
+        </ul>
+        
+    </div>
+</body>
+</html>

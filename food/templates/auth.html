@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- КОДИРОВКА ДЛЯ РУССКОГО ЯЗЫКА -->
+    <meta charset="UTF-8">
+    
+    <!-- ЗАГОЛОВОК НА ВКЛАДКЕ БРАУЗЕРА -->
+    <title>Вход / Регистрация</title>
+    
+    <!-- ===== НАЧАЛО СТИЛЕЙ ===== -->
+    <style>
+        /* ОБНУЛЯЕМ ОТСТУПЫ У ВСЕХ ЭЛЕМЕНТОВ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ТЕЛО СТРАНИЦЫ: ФОН, ЦЕНТРИРОВАНИЕ */
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* БЕЛАЯ КАРТОЧКА С ТЕНЬЮ */
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        /* ЗАГОЛОВОК */
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        /* БЛОК С ВКЛАДКАМИ */
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        /* КАЖДАЯ ВКЛАДКА */
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #888;
+            border-bottom: 3px solid transparent;
+        }
+        
+        /* АКТИВНАЯ ВКЛАДКА (ПОДСВЕЧЕНА) */
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        /* ГРУППА ПОЛЯ ВВОДА */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        /* НАЗВАНИЕ ПОЛЯ */
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* САМО ПОЛЕ ВВОДА */
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        /* ПОЛЕ ВВОДА ПРИ КЛИКЕ (ФОКУС) */
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+        }
+        
+        /* ОБЩИЙ СТИЛЬ ДЛЯ ВСЕХ КНОПОК */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+        
+        /* КНОПКА "ВОЙТИ" (ФИОЛЕТОВАЯ) */
+        .btn-login {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        /* КНОПКА "ЗАРЕГИСТРИРОВАТЬСЯ" (ЗЕЛЁНАЯ) */
+        .btn-register {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56,239,125,0.4);
+        }
+        
+        /* СКРЫТЫЙ ЭЛЕМЕНТ */
+        .hidden { display: none; }
+        
+        /* СООБЩЕНИЯ (ОБЩИЙ СТИЛЬ) */
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* КРАСНОЕ СООБЩЕНИЕ ОБ ОШИБКЕ */
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* ЗЕЛЁНОЕ СООБЩЕНИЕ ОБ УСПЕХЕ */
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- БЕЛАЯ КАРТОЧКА -->
+    <div class="container">
+        
+        <!-- ЗАГОЛОВОК -->
+        <h2> Доставка еды</h2>
+        
+        <!-- ===== БЛОК СООБЩЕНИЙ (Jinja2) ===== -->
+        <!-- ЕСЛИ ПРИШЛА ОШИБКА → ПОКАЗЫВАЕМ КРАСНОЕ СООБЩЕНИЕ -->
+        {% if error %}
+        <div class="message message-error">{{ error }}</div>
+        {% endif %}
+        
+        <!-- ЕСЛИ ПРИШЕЛ УСПЕХ → ПОКАЗЫВАЕМ ЗЕЛЁНОЕ СООБЩЕНИЕ -->
+        {% if success %}
+        <div class="message message-success">{{ success }}</div>
+        {% endif %}
+        
+        <!-- ===== ВКЛАДКИ ===== -->
+        <div class="tabs">
+            <!-- КЛИК → ПОКАЗАТЬ ВХОД -->
+            <div class="tab active" onclick="switchTab('login')" id="tab-login">Вход</div>
+            
+            <!-- КЛИК → ПОКАЗАТЬ РЕГИСТРАЦИЮ -->
+            <div class="tab" onclick="switchTab('register')" id="tab-register">Регистрация</div>
+        </div>
+        
+        <!-- ===== ФОРМА ВХОДА (ВИДНА ПО УМОЛЧАНИЮ) ===== -->
+        <div id="form-login">
+            <form method="POST">
+                <div class="form-group">
+                    <label>Логин</label>
+                    <input type="text" name="username" placeholder="Введите логин" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" name="password" placeholder="Введите пароль" required>
+                </div>
+                <!-- КНОПКА ОТПРАВЛЯЕТ action=login -->
+                <button type="submit" name="action" value="login" class="btn btn-login">Войти</button>
+            </form>
+        </div>
+        
+        <!-- ===== ФОРМА РЕГИСТРАЦИИ (СКРЫТА ПО УМОЛЧАНИЮ) ===== -->
+        <div id="form-register" class="hidden">
+            <form method="POST">
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" name="username" placeholder="Придумайте логин" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" name="password" placeholder="Придумайте пароль" required>
+                </div>
+                <!-- КНОПКА ОТПРАВЛЯЕТ action=register -->
+                <button type="submit" name="action" value="register" class="btn btn-register">Зарегистрироваться</button>
+            </form>
+        </div>
+        
+        <div class="divider"></div>
+    </div>
+    
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ МЕЖДУ ВКЛАДКАМИ
+        function switchTab(type) {
+            // ПОКАЗЫВАЕМ/СКРЫВАЕМ ФОРМУ ВХОДА
+            document.getElementById('form-login').className = type === 'login' ? '' : 'hidden';
+            // ПОКАЗЫВАЕМ/СКРЫВАЕМ ФОРМУ РЕГИСТРАЦИИ
+            document.getElementById('form-register').className = type === 'register' ? '' : 'hidden';
+            // ПОДСВЕЧИВАЕМ АКТИВНУЮ ВКЛАДКУ
+            document.getElementById('tab-login').className = 'tab' + (type === 'login' ? ' active' : '');
+            document.getElementById('tab-register').className = 'tab' + (type === 'register' ? ' active' : '');
+        }
+    </script>
+</body>
+</html>

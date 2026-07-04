@@ -4,14 +4,16 @@ GO
 USE Food;
 GO
 
+-- 1. Удаляем старые таблицы, если они есть
+IF OBJECT_ID('order_items', 'U') IS NOT NULL DROP TABLE order_items;
 IF OBJECT_ID('orders', 'U') IS NOT NULL DROP TABLE orders;
 IF OBJECT_ID('product', 'U') IS NOT NULL DROP TABLE product;
 IF OBJECT_ID('categori', 'U') IS NOT NULL DROP TABLE categori;
 IF OBJECT_ID('courier', 'U') IS NOT NULL DROP TABLE courier;
 IF OBJECT_ID('user', 'U') IS NOT NULL DROP TABLE [user];
+GO
 
--- 1. ПОЛЬЗОВАТЕЛИ
-
+-- 2. Создаем таблицы
 CREATE TABLE [user] (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(50) NOT NULL UNIQUE,
@@ -19,9 +21,6 @@ CREATE TABLE [user] (
     role NVARCHAR(20) NOT NULL CHECK(role IN ('user', 'admin', 'manager', 'courier')) DEFAULT 'user',
     created_at DATETIME DEFAULT GETDATE()
 );
-
-
--- 2. КУРЬЕРЫ
 
 CREATE TABLE courier (
     courier_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -31,16 +30,10 @@ CREATE TABLE courier (
     created_at DATETIME DEFAULT GETDATE()
 );
 
-
--- 3. КАТЕГОРИИ
-
 CREATE TABLE categori (
     category_id INT IDENTITY(1,1) PRIMARY KEY,
-    name NVARCHAR(50) NOT NULL UNIQUE
+    name_category NVARCHAR(50) NOT NULL UNIQUE
 );
-
-
--- 4. ПРОДУКТЫ
 
 CREATE TABLE product (
     product_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -50,75 +43,82 @@ CREATE TABLE product (
     CONSTRAINT FK_product_categori FOREIGN KEY (category_id) REFERENCES categori(category_id)
 );
 
-
--- 5. ЗАКАЗЫ
-
 CREATE TABLE orders (
     order_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    product_id INT NOT NULL,
     courier_id INT NULL,
-    quantity INT DEFAULT 1 CHECK(quantity > 0),
     status NVARCHAR(20) NOT NULL CHECK(status IN ('new', 'waiting', 'done', 'rejected')) DEFAULT 'new',
     created_at DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_orders_user FOREIGN KEY (user_id) REFERENCES [user](user_id),
-    CONSTRAINT FK_orders_product FOREIGN KEY (product_id) REFERENCES product(product_id),
     CONSTRAINT FK_orders_courier FOREIGN KEY (courier_id) REFERENCES courier(courier_id)
 );
 
+CREATE TABLE order_items (
+    item_id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    price_one_order INT NOT NULL,
+    CONSTRAINT FK_items_orders FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    CONSTRAINT FK_items_product FOREIGN KEY (product_id) REFERENCES product(product_id)
+);
+GO
 
-
--- Добавляем пользователей
-INSERT INTO [user] (username, password, role) VALUES 
+-- 3. Заполняем данные
+INSERT INTO [user] (username, password, role) VALUES
 ('Чуча', '00000', 'admin'),
 ('Димон', '14068', 'courier'),
 ('Крипер', '31147', 'user'),
 ('Никита', '01010', 'manager');
 
--- Добавляем курьеров
-INSERT INTO courier (name, is_active, old) VALUES 
+INSERT INTO courier (name, is_active, old) VALUES
 ('Богдан', 'True', 23),
 ('Славик', 'True', 30),
 ('Владислав', 'False', 18);
 
--- Добавляем категории
-INSERT INTO categori (name) VALUES 
-('KFC'),
-('Subway'),
-('Burger King'),
-('Papa Doner');
+INSERT INTO categori (name_category) VALUES
+('Напитки'),
+('Картошка'),
+('Донеры'),
+('Соусы');
 
--- Добавляем товары
-INSERT INTO product (name, price, category_id) VALUES 
-('Шаурма', 8, 4),
-('Стрипсы', 6, 1),
-('Сэндвич', 11, 2),
-('Вопер', 5, 3),
-('Соус', 3, 1),
-('ещё что-то', 1, 2)
+INSERT INTO product (name, price, category_id) VALUES
+('Средняя картошка', 8, 2),
+('Coca-Cola', 6, 1),
+('Донер Чизер', 11, 3),
+('Донер Чикен', 5, 3),
+('Сырный соус', 3, 4);
 
--- Добавляем заказы
-INSERT INTO orders (user_id, product_id, courier_id, quantity, status) VALUES 
-(3, 1, 1, 1, 'new'),
-(3, 2, 1, 2, 'rejected'),
-(3, 4, 2, 3, 'waiting'),
-(2, 6, 2, 1, 'done'),
-(4, 6, 2, 2, 'done');
+INSERT INTO orders (user_id, courier_id, status) VALUES
+(3, 1, 'new'),
+(3, 1, 'rejected'),
+(3, 2, 'waiting'),
+(2, 2, 'done'),
+(4, 2, 'done');
 
+INSERT INTO order_items (order_id, product_id, price_one_order) VALUES
+(1, 1, 8),
+(1, 2, 6),
+(2, 2, 6),
+(3, 4, 5),
+(4, 5, 3),
+(5, 5, 3);
+GO
 
-SELECT 
+-- 4. Выводим отчет
+SELECT
     o.order_id,
     u.username AS client,
     p.name AS product,
     p.price,
-    c.name AS restoran,
+    c.name_category AS category,
     cou.name AS courier,
-    o.quantity,
     o.status,
     o.created_at
 FROM orders o
 JOIN [user] u ON o.user_id = u.user_id
-JOIN product p ON o.product_id = p.product_id
+JOIN order_items oi ON o.order_id = oi.order_id
+JOIN product p ON oi.product_id = p.product_id
 JOIN categori c ON p.category_id = c.category_id
 LEFT JOIN courier cou ON o.courier_id = cou.courier_id
 ORDER BY o.created_at DESC;
+GO
