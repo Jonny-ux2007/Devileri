@@ -5,9 +5,11 @@ from routes.orders import *
 def menu(message, bot):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     menu_btn = types.KeyboardButton('Меню')
-    basket = types.KeyboardButton('Корзина')
-    courier = types.KeyboardButton('Устроиться курьером')
-    markup.row(menu_btn, basket, courier)
+    basket_btn = types.KeyboardButton('Корзина')
+    pay_btn = types.KeyboardButton('Оплатить корзину')
+    courier_btn = types.KeyboardButton('Устроиться курьером')
+    markup.row(menu_btn)
+    markup.row(basket_btn,pay_btn, courier_btn)
     bot.send_message(message.chat.id, 'Что хотите выбрать?', reply_markup=markup)
     bot.register_next_step_handler(message, menu2, bot)
 
@@ -17,6 +19,8 @@ def menu2(message,bot):
         menu_category(message,bot)
     elif message.text.strip() == 'Корзина':
         show_basket(message,bot)
+    elif message.text.strip() == 'Оплатить корзину':
+        pay_for_basket(message,bot)
     elif message.text.strip() == 'Устроиться курьером':
         pass
 
@@ -38,9 +42,7 @@ def menu_category(message, bot):
 def choice(message, bot):
     text = message.text.strip()
 
-    if text == '<-- Назад':
-        menu(message, bot)
-    elif text == 'Напитки':
+    if text == 'Напитки':
         from routes.products import beverages_cat
         beverages_cat(message,bot,text)
     elif text == 'Картошка':
@@ -52,4 +54,5 @@ def choice(message, bot):
     elif text == 'Соусы':
         from routes.products import souces_cat
         souces_cat(message,bot,text)
-
+    else:
+        menu(message, bot)

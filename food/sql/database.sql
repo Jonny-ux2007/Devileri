@@ -20,7 +20,7 @@
         password NVARCHAR(255) NOT NULL,
         role NVARCHAR(20) NOT NULL CHECK(role IN ('user', 'admin', 'manager', 'courier')) DEFAULT 'user',
         created_at DATETIME DEFAULT GETDATE(),
-        tg_id BIGINT NOT NULL UNIQUE
+        tg_id BIGINT 
     );
 
     CREATE TABLE courier (
@@ -48,7 +48,7 @@
     order_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
     courier_id INT NULL,
-    status NVARCHAR(20) NOT NULL CHECK(status IN ('new', 'waiting', 'done', 'rejected')) DEFAULT 'new',
+    status NVARCHAR(20) NOT NULL CHECK(status IN ('inbasket','paid', 'en_route')) DEFAULT 'inbasket',
     created_at DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_orders_user FOREIGN KEY (user_id) REFERENCES [user](user_id),
     CONSTRAINT FK_orders_courier FOREIGN KEY (courier_id) REFERENCES courier(courier_id)
@@ -67,7 +67,6 @@
     -- 3. Заполняем данные (теперь СУБД точно знает про новые колонки)
     INSERT INTO [user] (username, password, role, tg_id) VALUES
     ('Чуча', '00000', 'admin',4444444),
-    ('Димон', '14068', 'courier',111111),
     ('Крипер', '31147', 'user',66666),
     ('Никита', '01010', 'manager',333333);
 
@@ -90,11 +89,11 @@
     ('Сырный соус', 3, 4);
 
     INSERT INTO orders (user_id, courier_id, status) VALUES
-    (3, 1, 'new'),      -- Создаст заказ №1
-    (3, 1, 'rejected'), -- Создаст заказ №2
-    (3, 2, 'waiting'),  -- Создаст заказ №3
-    (2, 2, 'done'),     -- Создаст заказ №4
-    (4, 2, 'done');     -- Создаст заказ №5
+    (3, 1, 'inbasket'),      -- Создаст заказ №1
+    (3, 1, 'paid'), -- Создаст заказ №2
+    (3, 2, 'paid'),  -- Создаст заказ №3
+    (2, 2, 'paid'),     -- Создаст заказ №4
+    (1, 2, 'paid');     -- Создаст заказ №5
 
     -- Теперь наполняем эти заказы товарами (в заказ №1 можно положить сразу несколько продуктов!)
     INSERT INTO order_items (order_id, product_id,price_one_order) VALUES
