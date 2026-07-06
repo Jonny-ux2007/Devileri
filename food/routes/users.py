@@ -119,7 +119,9 @@ def unique_login(message,bot):
     result = cursor.fetchone()
 
     cursor.close()
-
+    if username[0] == '/':
+        bot.send_message(message.chat.id, 'Нельзя зарегистрирвоать как команда! пропишите /start')
+        return
     if result is not None:
         bot.send_message(message.chat.id, 'Такой логин уже занят!!! Придумайте другой!')
         add_login(message,bot)
@@ -130,16 +132,7 @@ def unique_login(message,bot):
 
 #ПЕРЕДЕЛАТЬ НАДО
 def on_click(message,bot):
-    text = message.text.strip()
-
-    # ЕСЛИ ПОЛЬЗОВАТЕЛЬ ВВЕЛ КОМАНДУ — ПРЕРЫВАЕМ ШАГ И ЗАПУСКАЕМ ЕЁ ВРУЧНУЮ
-    if text.startswith('/'):
-        if text == '/main':
-            menu(message, bot)  # Сразу вызываем меню
-            return  # Выходим из функции, чтобы код ниже не выполнялся
-        elif text == '/start':
-            start(message)  # Сразу перезапускаем старт
-            return
+    text = message.text.strip().lower()
     if message.text.lower() == 'войти':
         bot.send_message(message.from_user.id, 'Введите логин')
         bot.register_next_step_handler(message, check_login, bot)
@@ -155,6 +148,9 @@ def add_login(message,bot):
 
 def add_password(message, bot, username):
     user_password = message.text.strip()
+    if user_password[0] == '/':
+        bot.send_message(message.chat.id, 'Нельзя запаролиться как команда! пропишите /start')
+        return
     bot.send_message(message.from_user.id, f"Успех!\nЛогин: {username}\nПароль: {user_password}")
     add_user(message, username,user_password,'user')
     bot.send_message(message.chat.id, 'Напишите -> /main, чтобы продолжить')
