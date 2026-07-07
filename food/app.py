@@ -1,11 +1,12 @@
-import telebot
-from database import *
-from routes.products import *
-from routes.users import *
-from telebot import types
-from routes.categories import *
+import logging
 
-bot = telebot.TeleBot('8910557183:AAFaqpFgnyCL9jSfDsLcezxJg8EUOLVmcHc')
+import telebot
+
+from routes.categories import *
+from routes.users import *
+
+telebot.logger.setLevel(logging.INFO)
+bot = telebot.TeleBot('8862700075:AAFT77qaO6YkNFjDDR0rK986EhhaeD8Vb6g')
 
 # обрабатывает комманду 
 @bot.message_handler(commands = ['start'])
@@ -22,4 +23,5 @@ def start(message):
 def main(message):
     menu(message, bot)
 
-bot.polling(none_stop= True)
+
+bot.infinity_polling()

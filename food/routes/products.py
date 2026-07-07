@@ -1,4 +1,5 @@
 from database import *
+from db.products_db import *
 from telebot import types
 from routes.categories import *
 from routes.orders import order_item
@@ -11,23 +12,6 @@ def code(message, bot, name_category):
     for name, price in lst:
         markup.add(types.KeyboardButton(f'{name}---{price}'))
     return markup
-
-def product_cat(name_category):
-    conn = get_connection()
-    cursor= conn.cursor()
-
-    query = '''
-            SELECT name, price
-            FROM product p
-            JOIN categori c ON p.category_id = c.category_id
-            WHERE c.name_category = ?
-            '''
-
-    cursor.execute(query, (name_category,))
-    result = cursor.fetchall()
-
-    cursor.close()
-    return result
 
 def beverages_cat(message, bot, name_category):
     markup = code(message, bot, name_category)
